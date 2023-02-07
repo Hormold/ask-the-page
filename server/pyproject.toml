@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ask-the-page"
+version = "0.1.0"
+description = ""
+authors = ["Nikita <hormold@gmail.com>"]
+readme = "README.md"
+packages = [{include = "ask_the_page"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.0.78"
+openai = "^0.26.4"
+flask = "^2.2.2"
+flask-cors = "^3.0.10"
+readability-lxml = "^0.8.1"
+faiss-cpu = "^1.7.3"
+apscheduler = "^3.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
