@@ -26,10 +26,15 @@ def gen_random_id():
 def check_api_key():
     """Checks for an API key in the request parameters."""
     api_key = request.args.get("api_key")
-    if not api_key or not api_key.startswith("sk-"):
-        return {"success": False, "error": "No API key provided or invalid."}
+    if not api_key:
+        api_key = request.headers.get("X-Api-Key")
 
-@app.route("/index", methods=["GET"])
+    if not api_key or not api_key.startswith("sk-"):
+        return {"success": False, "error": "No API key provided or invalid API key."}
+
+    request.api_key = api_key
+
+@app.route("/index", methods=["POST"])
 def ind():
     """Indexes a URL and returns an ID."""
     web_url = request.args.get("url")
@@ -44,7 +49,7 @@ def ind():
             "success": True,
             "id": [id for id in INDEX if INDEX[id]["url"] == web_url][0]
         }
-    api_key = request.args.get("api_key")
+    api_key = request.api_key
     doc = parse_url(web_url)
     text = text_to_docs(doc)
     try:
@@ -64,11 +69,11 @@ def ind():
 
     return {"success": True, "id": id}
 
-@app.route("/ask", methods=["GET"])
+@app.route("/ask", methods=["POST"])
 def ask():
     """Returns an answer to a question."""
     query = request.args.get("query")
-    api_key = request.args.get("api_key")
+    api_key = request.api_key
     doc_id = request.args.get("id")
     if not query or not doc_id:
         return {
