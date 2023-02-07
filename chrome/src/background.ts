@@ -1,7 +1,8 @@
 console.log("hello background");
 import { ChromeRuntimeMessage } from './types/base';
 import { SHA1 } from './utils/sha1';
-const APP_URL = 'https://ask-the-page.herokuapp.com';
+const isProdMode = 'update_url' in chrome.runtime.getManifest()
+const APP_URL = !isProdMode?'http://127.0.0.1:5000':'https://ask-the-page.herokuapp.com';
 
 
 

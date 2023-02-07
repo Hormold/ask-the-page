@@ -1,5 +1,9 @@
 """Index and search a collection of documents."""
 # Indexed functions by https://github.com/mmz-001/knowledge_gpt
+import re
+import random
+from typing import List, Dict, Any
+import requests
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 from langchain import OpenAI, Cohere
@@ -8,12 +12,18 @@ from langchain.embeddings import CohereEmbeddings, OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS, VectorStore
-import requests
 from readability import Document as ReadabilityDocument
-from typing import List, Dict, Any
-import re
-from io import BytesIO
 from prompts import STUFF_PROMPT
+
+valid_user_agents = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+];
 
 def text_to_docs(text: str | List[str]) -> List[Document]:
     """Converts a string or list of strings to a list of Documents
@@ -30,10 +40,10 @@ def text_to_docs(text: str | List[str]) -> List[Document]:
     # Split pages into chunks
     doc_chunks = []
     for doc in page_docs:
-        text_splitter = RecursiveCharacterTextSplitter(
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=800,
             separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""],
-            chunk_overlap=0,
+            chunk_overlap=0
         )
         chunks = text_splitter.split_text(doc.page_content)
         for i, chunk in enumerate(chunks):
@@ -98,7 +108,7 @@ def wrap_text_in_html(text: str | List[str]) -> str:
 def parse_url(url: str):
     """Parses a URL and returns the text content"""
     try:
-        response = requests.get(url, timeout=15)
+        response = requests.get(url, timeout=15, headers={'User-Agent': random.choice(valid_user_agents)})
         response.raise_for_status()
         doc = ReadabilityDocument(response.text)
         text = doc.summary(html_partial=True)

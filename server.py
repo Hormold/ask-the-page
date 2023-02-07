@@ -1,6 +1,5 @@
 """Server for the API."""
-import random
-import string
+import hashlib
 import os
 from datetime import datetime
 from waitress import serve
@@ -17,9 +16,9 @@ PORT = int(os.environ.get("PORT", 5000))
 is_on_heroku = os.environ.get("IS_HEROKU", None)
 app.config["DEBUG"] = is_on_heroku is None
 
-def gen_random_id():
-    """Generates a random ID."""
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+def gen_sha1(url: str) -> str:
+    """Generates a sha1 hash from a URL, first 5 characters."""
+    return hashlib.sha1(url.encode()).hexdigest()[:5]
 
 # middleware to check for api key
 @app.before_request
@@ -51,16 +50,19 @@ def ind():
             "id": [id for id in INDEX if INDEX[id]["url"] == web_url][0]
         }
     api_key = request.api_key
+    start = datetime.now()
     doc = parse_url(web_url)
     text = text_to_docs(doc)
     try:
-        id = gen_random_id()
+        id = gen_sha1(web_url)
+        print(f"Indexing {web_url} took {(datetime.now() - start).total_seconds()} seconds [{len(doc)} characters], next step: embedding...")
         INDEX[id] = {
             "index": embed_docs(text, api_key),
             "url": web_url,
             "text": text,
             "created_at": datetime.now()
         }
+        print(f"Embedding {web_url} took {(datetime.now() - start).total_seconds()} seconds.")
     except OpenAIError as err:
         print('Index error', err._message)
         return {
