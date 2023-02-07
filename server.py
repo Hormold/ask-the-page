@@ -37,7 +37,8 @@ def check_api_key():
 @app.route("/index", methods=["POST"])
 def ind():
     """Indexes a URL and returns an ID."""
-    web_url = request.args.get("url")
+    content = request.json
+    web_url = content['url']
     # Check is it is a valid URL and not indexed already
     if not web_url or not web_url.startswith("http"):
         return {
@@ -72,9 +73,11 @@ def ind():
 @app.route("/ask", methods=["POST"])
 def ask():
     """Returns an answer to a question."""
-    query = request.args.get("query")
     api_key = request.api_key
-    doc_id = request.args.get("id")
+    content = request.json
+    query = content['query']
+    doc_id = content['id']
+
     if not query or not doc_id:
         return {
             "success": False,
