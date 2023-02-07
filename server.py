@@ -1,6 +1,7 @@
 """Server for the API."""
 import random
 import string
+import os
 from datetime import datetime
 from flask import Flask, request
 from flask_cors import CORS
@@ -11,7 +12,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 CORS(app)
 INDEX = {}
-app.config["DEBUG"] = True
+PORT = int(os.environ.get("PORT", 5000))
+is_on_heroku = os.environ.get("IS_HEROKU", None)
+app.config["DEBUG"] = is_on_heroku is None
 
 def gen_random_id():
     """Generates a random ID."""
@@ -125,4 +128,4 @@ def clear_index():
     scheduler.start()
 
 
-app.run()
+app.run(port=PORT)
