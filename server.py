@@ -3,6 +3,7 @@ import random
 import string
 import os
 from datetime import datetime
+from waitress import serve
 from flask import Flask, request
 from flask_cors import CORS
 from app import parse_url, text_to_docs, embed_docs, search_docs, get_answer, get_sources
@@ -127,5 +128,8 @@ def clear_index():
     scheduler.add_job(func=run_job, trigger="interval", minutes=5)
     scheduler.start()
 
-
-app.run(port=PORT)
+if is_on_heroku:
+    serve(app, port=PORT)
+    print("Server started on port", PORT)
+else:
+    app.run(port=PORT)
