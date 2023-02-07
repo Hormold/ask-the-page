@@ -7,4 +7,5 @@ export const ChromeRuntimeMessage = {
   SAVE_API_KEY: 'saveApiKey',
   INDEX_PAGE: 'indexPage',
   ASK_QUESTION: 'askQuestion',
+  CLEAR_CACHE: 'clearCache',
 } as const;
