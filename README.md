@@ -5,9 +5,11 @@ Backend server is used to store indexed pages and not saving any user data like 
 
 ![How it looks now](https://github.com/Hormold/ask-the-page/blob/master/docs/demo.jpeg?raw=true)
 ## Installation
-### Backend server
-1. Install Python 3.7+
-2. Install requirements: `pip install -r requirements.txt`
+### Backend server (Self-hosted)
+1. Install [Poetry](https://python-poetry.org/docs/#installation)
+2. Run ```poetry install```
+3. Run ```poetry shell```
+4. And then ```python3 server.py```
 
 ## Or use hosted on Heroku: https://ask-the-page.herokuapp.com/
 
